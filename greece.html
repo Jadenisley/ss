@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ru">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<title>Греция. История и её достопримечательности</title>
+		<link rel="stylesheet" href="style.css">
+
+		<script>
+			window.addEventListener('resize', function() {
+				document.body.style.zoom = 1; // Сбрасывает масштаб к 100%
+			});
+		</script>
+	</head>
+
+	<body>
+		<div class="text-center" id="title">
+			<div class="title-container">
+				<h1>Греция. История и её достопримечательности</h1>
+			</div>
+		</div>
+
+		<div class="background" id="background1"></div>
+		<div class="background" id="background2"></div>
+		<div class="background" id="background3"></div>
+		<div class="background" id="background4"></div>
+
+		<div class="info-panel" id="infoPanel">
+			<h2>Основная информация о Греции</h2>
+			<p>Греция — это страна с богатой историей и культурным наследием. Она известна своими древними памятниками, такими как Акрополь в Афинах и храм Зевса в Олимпии. Греция также славится своими живописными островами, такими как Санторини и Миконос, где можно насладиться красивыми пляжами и уникальной архитектурой. Кухня Греции разнообразна и включает в себя такие блюда, как мусака, сувлаки и греческий салат.</p>
+		</div>
+
+		<div class="button-panel" id="buttonPanel">
+			<button onclick="loadContent('country')">О стране</button>
+			<button onclick="loadContent('history')">История</button>
+			<button onclick="loadContent('sights')">Достопримечательности</button>
+		</div>
+
+		<!-- Новый блок для полноэкранного контента -->
+		<div class="full-screen" id="fullScreenContent" style="display: none;">
+			<button class= "back-button" onclick="hideFullScreen()">Назад</button>
+			<div class= "title-pos" id= "titlePos"></div>
+			<div class= "panel-for-text" id="panelForText">
+				<div id="fullScreenText"></div>
+			</div>
+		</div>
+
+		<div class="weather-panel" id="weatherPanel">
+			<h3 class="weather-title" id="weatherTitle">Погода в Греции:</h3>
+			<div class="weather" id="Weather">
+				<img class="img-weather" id="imgWeather" width="95%" height="80%">
+				<div class="weather-info">
+					<p id="temp"></p>
+					<p id="description"></p>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			window.onload = function() {
+				fetchWeather();
+
+				const backgrounds = [
+					"images/logotype/logo1.jpg",
+					"images/logotype/logo2.jpg",
+					"images/logotype/logo3.jpg",
+					"images/logotype/logo4.jpg"
+				];
+
+				let currentIndex = 0;
+
+				const bg1 = document.getElementById('background1');
+				const bg2 = document.getElementById('background2');
+				const bg3 = document.getElementById('background3');
+				const bg4 = document.getElementById('background4');
+
+				bg1.style.backgroundImage = `url("${backgrounds[currentIndex]}")`;
+				bg1.classList.add("show");
+				bg1.style.opacity = "1";
+
+				setTimeout(() => {
+					const title = document.getElementById('title');
+					title.classList.add("show");
+					document.getElementById('infoPanel').classList.add("show");
+					document.getElementById('buttonPanel').classList.add("show");
+					document.getElementById('weatherPanel').classList.add("show");
+				}, 100); // Задержка перед показом панелей
+
+				function changeBackground() {
+					const currentBg = (currentIndex % backgrounds.length === 0) ? bg1 : (currentIndex % backgrounds.length === 1) ? bg2 : (currentIndex % backgrounds.length === 2) ? bg3 : bg4;
+
+					currentIndex = (currentIndex + 1) % backgrounds.length;
+
+					const nextBg = (currentIndex % backgrounds.length === 0) ? bg1 : (currentIndex % backgrounds.length === 1) ? bg2 : (currentIndex % backgrounds.length === 2) ? bg3 : bg4;
+
+					nextBg.style.backgroundImage = `url("${backgrounds[currentIndex]}")`;
+					nextBg.classList.add("show");
+
+					setTimeout(() => {
+						currentBg.classList.remove("show");
+						currentBg.style.opacity = "0";
+					}, 1000);
+
+					nextBg.style.opacity = "1";
+
+					setTimeout(() => {
+						nextBg.classList.remove("show");
+						nextBg.style.opacity = "0";
+					}, 9000);
+
+					setTimeout(() => {
+						nextBg.classList.remove("show");
+					}, 10000);
+				}
+
+				setInterval(changeBackground, 10000);
+			}
+
+			const apiKey = 'PXON5S2JGdcZLN9mOTpOKAP14U6C65Je';
+			const cityKey = '215854';
+
+			async function fetchWeather() {
+				try {
+					const response = await fetch(`http://dataservice.accuweather.com/currentconditions/v1/${cityKey}?apikey=${apiKey}`);
+					const data = await response.json();
+
+					if (data.length > 0) {
+						const temperature = data[0].Temperature.Metric.Value;
+						const weatherDescription = data[0].WeatherText;
+						const icon = data[0].WeatherIcon;
+
+						document.getElementById('temp').innerText = `Температура: ${temperature}°C`;
+						document.getElementById('description').innerText = `Описание: ${weatherDescription}`;
+						document.getElementById('imgWeather').src = `https://developer.accuweather.com/sites/default/files/${icon < 10 ? '0' : ''}${icon}-s.png`;
+
+						// Добавляем класс show для панели погоды
+						document.getElementById('weatherPanel').classList.add("show");
+					} else {
+						console.error('Ошибка при получении данных о погоде:', data.message);
+					}
+				} catch (error) {
+					console.error('Ошибка:', error);
+				}
+			}
+
+			function loadContent(type) {
+				const fullScreenContent = document.getElementById('fullScreenContent');
+				const titlePos = document.getElementById("titlePos");
+				const panelForText = document.getElementById("panelForText")
+				const fullScreenText = document.getElementById('fullScreenText');
+
+				if (type === 'country') {
+					titlePos.innerHTML = '<h2 class= "title-info">Информация о стране</h2>';
+					fullScreenText.innerHTML = "<p class= 'desc-info'>Гре́ция (греч. Ελλάδα МФА: [eˈlaða]о файле), официально — Гре́ческая Респу́блика (греч. Ελληνική Δημοκρατία [eliniˈki ðimokraˈtia]), — государство в Южной Европе на границе с Малой Азией. Население — 10,48 млн чел. (на 2021 год), площадь территории — 131 957 км². Занимает 85-е место в мире по численности населения и 95-е по площади территории. Греция расположена на Балканском полуострове и многочисленных островах. Имеет сухопутную границу с Албанией на северо-западе, Северной Македонией и Болгарией на севере, с Турцией на северо-востоке. Омывается Эгейским на востоке, Ионическим на западе, на юге — Средиземным и Критским морями. Столица — город Афины. Государственный язык — греческий. Около 97 % населения исповедует православие. Современная Греция — наследница культуры Древней Греции, считающейся колыбелью западной цивилизации, родиной демократии и западной философии, основных принципов физико-математических наук, театра и современных Олимпийских игр. Богатое культурное наследие и географическое положение делают Грецию одной из самых посещаемых стран мира. Греция — индустриально-аграрная страна. Объём ВВП за 2011 год составил 294 339 млрд долларов США (около 24 543 долларов США на душу населения). Денежная единица — евро. Часть еврозоны с 2001 года. В марте 2020 года должность президента заняла Катерина Сакелларопулу. Главой правительства является премьер-министр Кириакос Мицотакис.</p>";
+					
+				} else if (type === 'history') {
+					titlePos.innerHTML = '<h2 class= "title-story">История Греции</h2>';
+					fullScreenText.innerHTML= "<p class= 'desc-history'>История Греции охватывает более четырех тысяч лет и включает в себя множество периодов, каждый из которых оказал значительное влияние на развитие цивилизации. Греческая культура, философия и искусство оставили неизгладимый след в мировой истории. Останки древнейших архантропов возрастом в 360 тысяч лет найдены в Петралонской пещере. Известны также останки неандертальцев, живших 40 тыс. лет назад на территории Пелопоннеса. Примечательным в истории Греции является разрыв в находках человека, приходящийся на верхний палеолит и мезолит. Неолит Греции имеет анатолийское происхождение и представлен культурами Сескло, Неа-Никомидия и Димини (южный вариант Винчи). Одной из древнейших неолитических стоянок в Греции считается пещера Франхти (греч. Σπήλαιο Φράγχθι), датированная 7 тыс. лет до н. э., свидетельствует о наличии у её обитателей развитого мореходства. Первые центры культуры открыты раскопками Генриха Шлимана в Микенах (1876), Артура Эванса на острове Крит (с 1899). С XIX в. исследовано несколько сотен памятников: могильники, поселения, большие города типа Полиохны на острове Лемнос с каменною стеной высотой 5 м, Филакопи на острове Милос; царские резиденции — Троя, дворцы Крита (Кносс, Маллия, Фест), акрополь в Микенах. Самые известные археологические культуры этого периода — минойская, или критская, и микенская, по которым он и получил своё название, но есть также несколько локальных культур, в частности кикладская и эллинская. Догре́ческий субстра́т — термин, обозначающий неизвестный язык или языки, предположительно распространённые на территории Древней Греции до прихода носителей протогреческого языка. Предполагается, что греческий язык заимствовал большое количество слов и имён собственных из догреческого языка или языков, поскольку заметная часть греческих слов не может быть объяснена из реконструируемых прото-индоевропейских корней и морфем. В археологии догреческий субстрат ассоциируется с ранним и отчасти средним периодом элладской цивилизации материковой Греции, а также с минойской и кикладской цивилизациями на островах Эгейского моря. После возникновения микенской цивилизации, поглотившей три предыдущих, начинается стремительная ассимиляция догреческого населения. В эпоху Геродота многие из упоминаемых им народов сохранились лишь в легендах.</p>"
+					
+				} else if (type === 'sights') {
+					titlePos.innerHTML = '<h2 class= "title-sights">Достопримечательности</h2>';
+					fullScreenText.innerHTML = "<p class= 'desc-sights'>Греция известна своей природной красотой и увлекательной историей. Достопримечательности Греции и древние археологические памятники, бесчисленные острова, песчаные пляжи и мягкий средиземноморский климат делают ее одним из главных туристических направлений Европы. До основных знаковых мест вы можете добраться самостоятельно, но лучше все же поехать на экскурсию в Греции — цены очень разумные, обычно около 20-25 евро за человека. Фото достопримечательностей Греции — главная тема фотоотчетов туристов. Акрополь — символ Афин и Греции, да и вообще всей западной цивилизации. Он возвышается в сердце современной столицы, его венчают три великолепных храма, датируемых V веком до нашей эры. Самым известным и наиболее характерным является Парфенон, первоначально составленный из 58 колонн, поддерживающих крышу и украшенных нарядными фронтонами и фризом. Здесь проходит так называемый археологический Променад — дорожка длиной 2,5 км, которая огибает подножие Акрополя и соединяет его с городом, а также другими основными древними достопримечательностями Афин — Древней Агорой, Римским форумом, Керамейкосом, и Храмом Зевса Олимпийского. Монастыри Метеоры — одна из самых необычных достопримечательностей, которую просто необходимо увидеть в Греции — это горный массив Пинд на равнине Фессалии, где на гладких каменных скалах в виде огромных причудливых столбов разместились многовековые монастыри Метеоры («Парящие в воздухе»). Внесенные в список Всемирного наследия ЮНЕСКО, в настоящее время шесть из них открыты для публики. Нужно подняться несколько пролетов каменных ступеней, высеченных в скале, чтобы достичь каждого монастыря. Внутри вы найдете мерцание свечей, старинные иконы и византийские фрески. Часы работы монастырей могут меняться: чтобы посетить все шесть монастырей, нужно потратить как минимум пару дней. Ближайший город к Метеорам — Каламбака.</p>";
+				}
+
+				fullScreenContent.style.display = 'flex';
+				panelForText.style.display = 'flex';
+				document.getElementById('infoPanel').style.display = 'none';
+				document.getElementById('buttonPanel').style.display = 'none';
+			}
+
+			function hideFullScreen() {
+				const fullScreenContent = document.getElementById('fullScreenContent');
+				fullScreenContent.style.display = 'none';
+				document.getElementById('infoPanel').style.display = 'block';
+				document.getElementById('buttonPanel').style.display = 'flex';
+			}
+		</script>
+	</body>
+</html>
